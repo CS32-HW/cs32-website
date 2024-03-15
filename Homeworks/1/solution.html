@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>CS 32 Homework 1 Solution, Winter 2024</title>
+</head>
+<body>
+<div align="right">
+Winter 2024 CS 32
+</div>
+<div align="center">
+<h2>Homework 1 Solution</h2>
+</div>
+<p>
+<a href="#P123">Problems 1, 2, and 3</a><br />
+<a href="#P4">Problem 4</a><br />
+<a href="#P5">Problem 5</a>
+</p>
+<h4><a id="P123"></a>Problems 1, 2, and 3:</h4>
+<p>
+In this solution, the functions with small, fast implementations are inlined.
+Alternatively, the <code>inline</code> keyword can be removed and the
+function definitions moved to Map.cpp.  (<code>inline</code> will be
+mentioned at some point in class, so don't worry if you've never seen it
+before.)
+</p>
+<p>
+Notice which member functions are const, and observe the use of the
+type aliases <code>KeyType</code> and <code>ValueType</code>.
+</p>
+<pre>
+// Map.h
+
+#ifndef MAP_INCLUDED
+#define MAP_INCLUDED
+
+  // Later in the course, we'll see that templates provide a much nicer
+  // way of enabling us to have Maps of different types.  For now, we'll
+  // use type aliases.
+
+#include &lt;string>
+
+<strong>using KeyType = std::string;</strong>
+<strong>using ValueType = double;</strong>
+
+const int DEFAULT_MAX_ITEMS = 150;
+
+class Map
+{
+  public:
+    Map();         // Create an empty map (i.e., one whose size() is 0).
+
+    bool empty() <strong>const</strong>;  // Return true if the map is empty, otherwise false.
+
+    int size() <strong>const</strong>;    // Return the number of key/value pairs in the map.
+
+    bool insert(const <strong>KeyType</strong>&amp; key, const <strong>ValueType</strong>&amp; value);
+      // If key is not equal to any key currently in the map and if the
+      // key/value pair can be added to the map, then do so and return true.
+      // Otherwise, make no change to the map and return false (indicating
+      // that either the key is already in the map, or the map has a fixed
+      // capacity and is full).
+
+    bool update(const <strong>KeyType</strong>&amp; key, const <strong>ValueType</strong>&amp; value);
+      // If key is equal to a key currently in the map, then make that key no
+      // longer map to the value that it currently maps to, but instead map to
+      // the value of the second parameter; in this case, return true.
+      // Otherwise, make no change to the map and return false.
+
+    bool insertOrUpdate(const <strong>KeyType</strong>&amp; key, const <strong>ValueType</strong>&amp; value);
+      // If key is equal to a key currently in the map, then make that key no
+      // longer map to the value that it currently maps to, but instead map to
+      // the value of the second parameter; in this case, return true.
+      // If key is not equal to any key currently in the map, and if the
+      // key/value pair can be added to the map, then do so and return true.
+      // Otherwise, make no change to the map and return false (indicating
+      // that the key is not already in the map and the map has a fixed
+      // capacity and is full).
+
+    bool erase(const <strong>KeyType</strong>&amp; key);
+      // If key is equal to a key currently in the map, remove the key/value
+      // pair with that key from the map and return true.  Otherwise, make
+      // no change to the map and return false.
+     
+    bool contains(const <strong>KeyType</strong>&amp; key) <strong>const</strong>;
+      // Return true if key is equal to a key currently in the map, otherwise
+      // false.
+     
+    bool get(const <strong>KeyType</strong>&amp; key, <strong>ValueType</strong>&amp; value) <strong>const</strong>;
+      // If key is equal to a key currently in the map, set value to the
+      // value in the map which the key maps to, and return true.  Otherwise,
+      // make no change to the value parameter of this function and return
+      // false.
+     
+    bool get(int i, <strong>KeyType</strong>&amp; key, <strong>ValueType</strong>&amp; value) <strong>const</strong>;
+      // If 0 &lt;= i &lt; size(), copy into the key and value parameters the
+      // key and value of the key/value pair in the map whose key is strictly
+      // greater than exactly i keys in the map and return true.  Otherwise,
+      // leave the key and value parameters unchanged and return false.
+
+    void swap(Map&amp; other);
+      // Exchange the contents of this map with the other one.
+
+  private:
+
+      // Since this structure is used only by the implementation of the
+      // Map class, we'll make it private to Map.
+
+    struct Pair
+    {
+        KeyType   m_key;
+        ValueType m_value;
+    };
+
+    Pair m_data[DEFAULT_MAX_ITEMS];  // the pairs in the map
+    int  m_size;                     // number of pairs in the map
+
+      // At any time, the elements of m_data indexed from 0 to m_size-1
+      // are in use and are stored in ascending order of the keys.
+
+    int findFirstAtLeast(const KeyType&amp; key) const;
+      // Return the index of the pair in m_data whose key is the least one
+      // that is >= key, or m_size if there is no such pair.
+
+    bool doInsertOrUpdate(const KeyType&amp; key, const ValueType&amp; value,
+                          bool mayInsert, bool mayUpdate);
+      // If the key is not present in the map and if mayInsert is true, insert
+      // the pair if there is room.  If the key is present and mayUpdate is
+      // true, update the pair with the given key.
+};
+
+// Inline implementations
+
+inline
+int Map::size() const
+{
+    return m_size;
+}
+
+inline
+bool Map::empty() const
+{
+    return size() == 0;
+}
+
+inline
+bool Map::contains(const KeyType&amp; key) const
+{
+    int pos = findFirstAtLeast(key);
+    return pos &lt; m_size  &amp;&amp;  m_data[pos].m_key == key;
+}
+
+inline
+bool Map::insert(const KeyType&amp; key, const ValueType&amp; value)
+{
+    return doInsertOrUpdate(key, value, true /* insert */, false /* no update */);
+}
+
+inline
+bool Map::update(const KeyType&amp; key, const ValueType&amp; value)
+{
+    return doInsertOrUpdate(key, value, false /* no insert */, true /* update */);
+}
+
+inline
+bool Map::insertOrUpdate(const KeyType&amp; key, const ValueType&amp; value)
+{
+    return doInsertOrUpdate(key, value, true /* insert */, true /* update */);
+}
+
+#endif // MAP_INCLUDED
+===================================================================
+// Map.cpp
+
+#include "Map.h"
+
+Map::Map()
+ : m_size(0)
+{}
+
+bool Map::erase(const KeyType&amp; key)
+{
+    int pos = findFirstAtLeast(key);
+    if (pos == m_size  ||  m_data[pos].m_key != key)  // not found
+        return false;
+
+      // Shift pairs left to replace the one erased
+
+    for ( ; pos+1 &lt; m_size; pos++)
+        m_data[pos] = m_data[pos+1];
+    m_size--;
+    return true;
+}
+
+bool Map::get(const KeyType&amp; key, ValueType&amp; value) const
+{
+    int pos = findFirstAtLeast(key);
+    if (pos == m_size  ||  m_data[pos].m_key != key)  // not found
+        return false;
+    value = m_data[pos].m_value;
+    return true;
+}
+
+bool Map::get(int i, KeyType&amp; key, ValueType&amp; value) const
+{
+    if (i &lt; 0  ||  i >= m_size)
+        return false;
+    key = m_data[i].m_key;
+    value = m_data[i].m_value;
+    return true;
+}
+
+void Map::swap(Map&amp; other)
+{
+      // Swap elements.  Since the only elements that matter are those up to
+      // m_size and other.m_size, only they have to be moved.
+
+    int minSize = (m_size &lt; other.m_size ? m_size : other.m_size);
+    for (int k = 0; k &lt; minSize; k++)
+    {
+        Pair tempPair = m_data[k];
+        m_data[k] = other.m_data[k];
+        other.m_data[k] = tempPair;
+    }
+
+      // If the sizes are different, assign the remaining elements from
+      // the longer one to the shorter.
+
+    if (m_size > minSize)
+        for (int k = minSize; k &lt; m_size; k++)
+            other.m_data[k] = m_data[k];
+    else if (other.m_size > minSize)
+        for (int k = minSize; k &lt; other.m_size; k++)
+            m_data[k] = other.m_data[k];
+
+      // Swap sizes
+
+    int t = m_size;
+    m_size = other.m_size;
+    other.m_size = t;
+}
+
+int Map::findFirstAtLeast(const KeyType&amp; key) const
+{
+      // Do a binary search through the array.
+
+    int begin = 0;
+    int end = m_size;
+    while (begin &lt; end)
+    {
+        int mid = (begin + end) / 2;
+        if (key &lt; m_data[mid].m_key)
+            end = mid;
+        else if (m_data[mid].m_key &lt; key)
+            begin = mid + 1;
+        else
+            return mid;
+    }
+    return begin;
+}
+
+bool Map::doInsertOrUpdate(const KeyType&amp; key, const ValueType&amp; value,
+                           bool mayInsert, bool mayUpdate)
+{
+    int pos = findFirstAtLeast(key);
+    if (pos &lt; m_size  &amp;&amp;  m_data[pos].m_key == key)  // found
+    {
+        if (mayUpdate)
+            m_data[pos].m_value = value;
+        return mayUpdate;
+    }
+    if (!mayInsert)  // not found, and not allowed to insert
+        return false;
+    if (m_size == DEFAULT_MAX_ITEMS)  // no room to insert
+        return false;
+
+      // Shift pairs right to make room for the one to be inserted
+
+    for (int i = m_size; i > pos; i--)
+        m_data[i] = m_data[i-1];
+    m_data[pos].m_key = key;
+    m_data[pos].m_value = value;
+    m_size++;
+    return true;
+}
+</pre>
+<h4><a id="P4"></a>Problem 4:</h4>
+<pre>
+// GamerMap.h
+
+#ifndef GAMERMAP_INCLUDED
+#define GAMERMAP_INCLUDED
+
+#include "Map.h"  // KeyType and ValueType are type aliases for string and double.
+#include &lt;string>
+
+class GamerMap
+{
+  public:
+        GamerMap();       // Create an empty gamer map.
+
+        bool addGamer(std::string name);
+          // If a person with the specified name is not currently in the map, 
+          // and there is room in the map, add an entry for that person
+          // recording that they have spent 0 hours gaming, and return true.
+          // Otherwise, make no change to the map and return false.
+
+        double hoursSpent(std::string name) const;
+          // If a person with the specified name is in the map, return how
+          // many hours they have spent gamin; otherwise, return -1.
+
+        bool play(std::string name, double hours);
+          // If no person with the specified name is in the map or if hours
+          // is negative, make no change to the map and return false.
+          // Otherwise, increase by the hours parameter the number of hours
+          // the indicated person has spent gaming and return true.
+
+        int numGamers() const;  // Return the number of people in the GamerMap.
+
+        void print() const;
+          // Write to cout one line for every person in the map.  Each line
+          // consists of the person's name, followed by one space, followed by
+          // the number of hours that person has spent gaming.  Write no other
+          // text.  The lines need not be in any particular order.
+  private:
+      Map m_gamerMap;
+};
+
+// Inline implementations
+
+inline
+bool GamerMap::addGamer(std::string name)
+{
+    return m_gamerMap.insert(name, 0);
+}
+
+inline
+double GamerMap::hoursSpent(std::string name) const
+{
+    double hours;
+    return m_gamerMap.get(name, hours) ? hours : -1;
+}
+
+inline
+int GamerMap::numGamers() const
+{
+    return m_gamerMap.size();
+}
+
+#endif // GAMERMAP_INCLUDED
+===================================================================
+// GamerMap.cpp
+
+#include "Map.h"
+#include "GamerMap.h"
+#include &lt;iostream>
+using namespace std;
+
+  // Actually, we did not have to declare and implement the default
+  // constructor:  If we declare no constructors whatsoever, the compiler
+  // writes a default constructor for us that would do nothing more than
+  // default construct the m_gamerMap data member.
+
+  // We do not have to declare a destructor, copy constructor, or assignment
+  // operator, because the compiler-generated ones do the right thing.
+
+GamerMap::GamerMap()
+{}
+
+bool GamerMap::play(string name, double hours)
+{
+    if (hours &lt; 0)
+        return false;
+    double h;
+    if (!m_gamerMap.get(name, h))
+        return false;
+    return m_gamerMap.update(name, h + hours);
+}
+
+void GamerMap::print() const
+{
+    string name;
+    double hours;
+    for (int k = 0; k &lt; m_gamerMap.size(); k++)
+    {
+        m_gamerMap.get(k, name, hours);
+        cout &lt;&lt; name &lt;&lt; ' ' &lt;&lt; hours &lt;&lt; endl;
+    }
+}
+</pre>
+<h4><a id="P5"></a>Problem 5:</h4>
+<p>
+The few differences from the Problem 3 solution are indicated in boldface.
+</p>
+<pre>
+<strong>// newMap.h
+
+#ifndef NEWMAP_INCLUDED
+#define NEWMAP_INCLUDED</strong>
+
+  // Later in the course, we'll see that templates provide a much nicer
+  // way of enabling us to have Maps of different types.  For now, we'll
+  // use type aliases.
+
+#include &lt;string>
+
+using KeyType = std::string;
+using ValueType = double;
+
+const int DEFAULT_MAX_ITEMS = 150;
+
+class Map
+{
+  public:
+    <strong>Map(int capacity = DEFAULT_MAX_ITEMS);
+      // Create an empty map with the given capacity.</strong>
+
+    bool empty() const;  // Return true if the map is empty, otherwise false.
+
+    int size() const;    // Return the number of key/value pairs in the map.
+
+    bool insert(const KeyType&amp; key, const ValueType&amp; value);
+      // If key is not equal to any key currently in the map and if the
+      // key/value pair can be added to the map, then do so and return true.
+      // Otherwise, make no change to the map and return false (indicating
+      // that either the key is already in the map, or the map has a fixed
+      // capacity and is full).
+
+    bool update(const KeyType&amp; key, const ValueType&amp; value);
+      // If key is equal to a key currently in the map, then make that key no
+      // longer map to the value that it currently maps to, but instead map to
+      // the value of the second parameter; in this case, return true.
+      // Otherwise, make no change to the map and return false.
+
+    bool insertOrUpdate(const KeyType&amp; key, const ValueType&amp; value);
+      // If key is equal to a key currently in the map, then make that key no
+      // longer map to the value that it currently maps to, but instead map to
+      // the value of the second parameter; in this case, return true.
+      // If key is not equal to any key currently in the map, and if the
+      // key/value pair can be added to the map, then do so and return true.
+      // Otherwise, make no change to the map and return false (indicating
+      // that the key is not already in the map and the map has a fixed
+      // capacity and is full.
+
+    bool erase(const KeyType&amp; key);
+      // If key is equal to a key currently in the map, remove the key/value
+      // pair with that key from the map and return true.  Otherwise, make
+      // no change to the map and return false.
+     
+    bool contains(const KeyType&amp; key) const;
+      // Return true if key is equal to a key currently in the map, otherwise
+      // false.
+     
+    bool get(const KeyType&amp; key, ValueType&amp; value) const;
+      // If key is equal to a key currently in the map, set value to the
+      // value in the map which the key maps to, and return true.  Otherwise,
+      // make no change to the value parameter of this function and return
+      // false.
+     
+    bool get(int i, KeyType&amp; key, ValueType&amp; value) const;
+      // If 0 &lt;= i &lt; size(), copy into the key and value parameters the
+      // key and value of the key/value pair in the map whose key is strictly
+      // greater than exactly i keys in the map and return true.  Otherwise,
+      // leave the key and value parameters unchanged and return false.
+
+    void swap(Map&amp; other);
+      // Exchange the contents of this map with the other one.
+
+      <strong>// Housekeeping functions
+    ~Map();
+    Map(const Map&amp; other);
+    Map&amp; operator=(const Map&amp; rhs);</strong>
+
+  private:
+
+      // Since this structure is used only by the implementation of the
+      // Map class, we'll make it private to Map.
+
+    struct Pair
+    {
+        KeyType   m_key;
+        ValueType m_value;
+    };
+
+    <strong>Pair* m_data;       // dynamic array of the pairs in the map</strong>
+    int   m_size;       // number of pairs in the map
+    <strong>int   m_capacity;   // the maximum number of pairs</strong>
+
+      // At any time, the elements of m_data indexed from 0 to m_size-1
+      // are in use and are stored in ascending order of the keys.
+
+    int findFirstAtLeast(const KeyType&amp; key) const;
+      // Return the index of the pair in m_data whose key is the least one
+      // that is >= key, or m_size if there is no such pair.
+
+    bool doInsertOrUpdate(const KeyType&amp; key, const ValueType&amp; value,
+                          bool mayInsert, bool mayUpdate);
+      // If the key is not present in the map and if mayInsert is true, insert
+      // the pair if there is room.  If the key is present and mayUpdate is
+      // true, update the pair with the given key.
+};
+
+// Inline implementations
+
+inline
+int Map::size() const
+{
+    return m_size;
+}
+
+inline
+bool Map::empty() const
+{
+    return size() == 0;
+}
+
+inline
+bool Map::contains(const KeyType&amp; key) const
+{
+    int pos = findFirstAtLeast(key);
+    return pos &lt; m_size  &amp;&amp;  m_data[pos].m_key == key;
+}
+
+inline
+bool Map::insert(const KeyType&amp; key, const ValueType&amp; value)
+{
+    return doInsertOrUpdate(key, value, true /* insert */, false /* no update */);
+}
+
+inline
+bool Map::update(const KeyType&amp; key, const ValueType&amp; value)
+{
+    return doInsertOrUpdate(key, value, false /* no insert */, true /* update */);
+}
+
+inline
+bool Map::insertOrUpdate(const KeyType&amp; key, const ValueType&amp; value)
+{
+    return doInsertOrUpdate(key, value, true /* insert */, true /* update */);
+}
+
+<strong>#endif // NEWMAP_INCLUDED</strong>
+===================================================================
+<strong>// newMap.cpp
+
+#include "newMap.h"
+#include &lt;iostream>
+#include &lt;cstdlib>
+using namespace std;</strong>
+
+<strong>Map::Map(int capacity)
+ : m_size(0), m_capacity(capacity)
+{
+    if (capacity &lt; 0)
+    {
+        cout &lt;&lt; "A Map capacity must not be negative." &lt;&lt; endl;
+        exit(1);
+    }
+    m_data = new Pair[m_capacity];
+}
+
+Map::Map(const Map&amp; other)
+ : m_size(other.m_size), m_capacity(other.m_capacity)
+{
+    m_data = new Pair[m_capacity];
+    for (int k = 0; k &lt; m_size; k++)
+        m_data[k] = other.m_data[k];
+}
+
+Map::~Map()
+{
+    delete [] m_data;
+}
+
+Map&amp; Map::operator=(const Map&amp; rhs)
+{
+    if (this != &amp;rhs)
+    {
+        Map temp(rhs);
+        swap(temp);
+    }
+    return *this;
+}</strong>
+
+bool Map::erase(const KeyType&amp; key)
+{
+    int pos = findFirstAtLeast(key);
+    if (pos == m_size  ||  m_data[pos].m_key != key)  // not found
+        return false;
+
+      // Shift pairs left to replace the one erased
+
+    for ( ; pos+1 &lt; m_size; pos++)
+        m_data[pos] = m_data[pos+1];
+    m_size--;
+    return true;
+}
+
+bool Map::get(const KeyType&amp; key, ValueType&amp; value) const
+{
+    int pos = findFirstAtLeast(key);
+    if (pos == m_size  ||  m_data[pos].m_key != key)  // not found
+        return false;
+    value = m_data[pos].m_value;
+    return true;
+}
+
+bool Map::get(int i, KeyType&amp; key, ValueType&amp; value) const
+{
+    if (i &lt; 0  ||  i >= m_size)
+        return false;
+    key = m_data[i].m_key;
+    value = m_data[i].m_value;
+    return true;
+}
+
+void Map::swap(Map&amp; other)
+{
+      <strong>// Swap the m_data pointers to dynamic arrays.
+
+    Pair* tempData = m_data;
+    m_data = other.m_data;
+    other.m_data = tempData;</strong>
+
+      // Swap sizes
+
+    int t = m_size;
+    m_size = other.m_size;
+    other.m_size = t;
+
+      <strong>// Swap capacities.
+
+    t = m_capacity;
+    m_capacity = other.m_capacity;
+    other.m_capacity = t;</strong>
+}
+
+int Map::findFirstAtLeast(const KeyType&amp; key) const
+{
+      // Do a binary search through the array.
+
+    int begin = 0;
+    int end = m_size;
+    while (begin &lt; end)
+    {
+        int mid = (begin + end) / 2;
+        if (key &lt; m_data[mid].m_key)
+            end = mid;
+        else if (m_data[mid].m_key &lt; key)
+            begin = mid + 1;
+        else
+            return mid;
+    }
+    return begin;
+}
+
+bool Map::doInsertOrUpdate(const KeyType&amp; key, const ValueType&amp; value,
+                           bool mayInsert, bool mayUpdate)
+{
+    int pos = findFirstAtLeast(key);
+    if (pos &lt; m_size  &amp;&amp;  m_data[pos].m_key == key)  // found
+    {
+        if (mayUpdate)
+            m_data[pos].m_value = value;
+        return mayUpdate;
+    }
+    if (!mayInsert)  // not found, and not allowed to insert
+        return false;
+    if (m_size == <strong>m_capacity</strong>)  // no room to insert
+        return false;
+
+      // Shift pairs right to make room for the one to be inserted
+
+    for (int i = m_size; i > pos; i--)
+        m_data[i] = m_data[i-1];
+    m_data[pos].m_key = key;
+    m_data[pos].m_value = value;
+    m_size++;
+    return true;
+}
+</pre>
+</body>
+</html>

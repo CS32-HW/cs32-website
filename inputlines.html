@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>Reading and Processing Lines of Input</title>
+</head>
+<body>
+<div align="center">
+<h2>Reading and Processing Lines of Input</h2>
+</div>
+<p>
+Suppose we have a file named <em>expenses</em> each line of which has a
+one-word expense category and an amount of money spent, such as:
+<p>
+<pre>
+	food 8.25
+	bus .50
+	rent 600
+	food 13.16
+	bus .50
+</pre>
+<p>
+Here's a program that prints a list of the total amount spent in each category:
+</p>
+<pre>
+	#include &lt;iostream> // needed for any I/O
+	#include &lt;fstream>  // needed in addition to &lt;iostream> for file I/O
+	#include &lt;sstream>  // needed in addition to &lt;iostream> for string stream I/O
+	#include &lt;string>
+	#include &lt;unordered_map>
+	using namespace std;
+
+	int main()
+	{
+		  // Open the file for input
+		ifstream inf("expenses");
+		  // Test for failure to open
+		if ( ! inf)
+		{
+			cout &lt;&lt; "Cannot open expenses file!" &lt;&lt; endl;
+			return 1;
+		}
+
+		  // This will hold the expense totals
+		unordered_map&lt;string, double> expenses;
+
+		  // Read each line.  The return value of getline is treated
+		  // as true if a line was read, false otherwise (e.g., because
+		  // the end of the file was reached).
+		string line;
+		while (getline(inf, line))
+		{
+			  // To extract the information from the line, we'll
+			  // create an input stringstream from it, which acts
+			  // like a source of input for operator>>
+			istringstream iss(line);
+			string category;
+			double amt;
+			  // The return value of operator>> acts like false
+			  // if we can't extract a word followed by a number
+			if ( ! (iss >> category >> amt) )
+			{
+				cout &lt;&lt; "Ignoring badly-formatted input line: " &lt;&lt; line &lt;&lt; endl;
+				continue;
+			}
+			  // If we want to be sure there are no other non-whitespace
+			  // characters on the line, we can try to continue reading
+			  // from the stringstream; if it succeeds, extra stuff
+			  // is after the double.
+			char dummy;
+			if (iss >> dummy) // succeeds if there a non-whitespace char
+				cout &lt;&lt; "Ignoring extra data in line: " &lt;&lt; line &lt;&lt; endl;
+
+			  // Add data to expenses map
+			expenses[category] += amt;
+		}
+
+		  // Print the totals
+		cout.setf(ios::fixed);
+		cout.precision(2);
+		for (unordered_map&lt;string, double>::iterator p = expenses.begin();
+						p != expenses.end(); p++)
+			cout &lt;&lt; p->first &lt;&lt; ": $" &lt;&lt; p->second &lt;&lt; endl;
+	}
+</pre>
+<p>
+The output might be the following, or some other ordering of the lines:
+</p>
+<pre>
+	rent: $600.00
+	bus: $1.00
+	food: $21.41
+</pre>
+<p>
+Because we are using an unordered_map, the order of the output lines is not
+particularly meaningful.  If we wanted the totals printed out sorted by the
+category, we would use a map instead of an unordered_map.
+</p><p>
+C++11 give us other ways to write the output loop that lets us skip writing
+the long type name of p:
+</p>
+<pre>
+	  // One way:
+	  // auto means the compiler will deduce the type of p from the type
+	  // of the initializer
+	for (auto p = expenses.begin(); p != expenses.end(); p++)
+		cout &lt;&lt; p->first &lt;&lt; ": $" &lt;&lt; p->second &lt;&lt; endl;
+
+	  // Another way:
+	  // On each iteration, pr will be a copy of another entry
+	  // in the unordered_map or map from strings to double.  Each
+	  // entry is a key/value pair, with the key being prevented from
+	  // being modified.
+	for (pair&lt;const string, double> pr : expenses)
+		cout &lt;&lt; pr.first &lt;&lt; ": $" &lt;&lt; pr.second &lt;&lt; endl;
+
+	  // Yet another way:
+	  // Like the above, but let the compiler deduce the type of each
+	  // entry in the unordered map or map.
+	for (auto pr : expenses)
+		cout &lt;&lt; pr.first &lt;&lt; ": $" &lt;&lt; pr.second &lt;&lt; endl;
+</pre>
+</body>
+</html>

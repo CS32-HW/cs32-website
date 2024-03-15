@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>CS 32 Project 4 FAQ, Winter 2024</title>
+</head>
+<body>
+<div align="right">
+Winter 2024 CS 32
+</div>
+<div align="center">
+<h2>Project 4 FAQ</h2>
+</div>
+<ol>
+<li>
+<p>
+<strong>In the map data file, must the street segments be listed in an
+order that forms one contiguous stretch of roadway?</strong>
+</p><p>
+No.  The segments listed after the street name in the file may be in any
+order and might not form just one contiguous stretch.  For example, consider
+this hypothetical street (near Paris, judging by the coordinates):
+<p>
+<pre>
+	Rue Exemple
+	<font color="#FF0000">45.000 3.000  45.000 3.001</font>
+	0
+	Rue Exemple
+	<font color="#FF0000">45.000 3.001  45.001 3.002</font>
+	0
+	Rue Exemple
+	<font color="#0000FF">45.001 3.003  45.001 3.004</font>
+	0
+	Rue Exemple
+	<font color="#0000FF">45.001 3.004  45.000 3.005</font>
+	0
+</pre>
+<p>
+This describes a street with two discontiguous stretches, one from
+<font color="#FF0000">(45.000,3.000)</font> east to
+<font color="#FF0000">(45.000,3.001)</font> then northeast to
+<font color="#FF0000">(45.001,3.002)</font> and one from
+<font color="#0000FF">(45.001,3.003)</font> east to
+<font color="#0000FF">(45.001,3.004)</font> southeast to
+<font color="#0000FF">(45.000,3.005)</font>.  But the file might just as
+well list the segments in a different order or the endpoints of a segment in
+the opposite order; the same information is conveyed:
+</p>
+<pre>
+	Rue Exemple
+	<font color="#FF0000">45.000 3.000  45.000 3.001</font>
+	0
+	Rue Exemple
+	<font color="#0000FF">45.001 3.004  45.001 3.003</font>
+	0
+	Rue Exemple
+	<font color="#FF0000">45.000 3.001  45.001 3.002</font>
+	0
+	Rue Exemple
+	<font color="#0000FF">45.001 3.004  45.000 3.005</font>
+	0
+</pre>
+<p>
+It still specifies two discontiguous stretches, one consisting of two segments
+connected at <font color="#FF0000">(45.000,3.001)</font> and one consisting of
+two segments connected at <font color="#0000FF">(45.001,3.004)</font>.
+</p><p>
+For the most straighforward implementation of <em>GeoDatabase</em> that we can
+think of, the code works the same for either of these arrangements and results
+in the same information being stored as a <em>GeoDatabase</em>'s data.
+</p>
+</li>
+<li>
+<p>
+<strong>Is it correct to say that we must NOT use containers defined in
+<code>&lt;map></code>, <code>&lt;set></code>, <code>&lt;unordered_map></code>,
+or <code>&lt;unordered_set></code> in our implementations of
+<em>HashMap</em> and <em>GeoDatabase</em>, but we ARE allowed to use
+them for <em>Router</em> and <em>TourGenerator</em>, and we ARE allowed to
+use <em>vector</em>, <em>list</em>, <em>stack</em>, <em>queue</em>, and
+<em>priority_queue</em> for any of the five classes?</strong>
+</p><p>
+Yes.
+</p>
+</li>
+<li>
+<p>
+<strong>I've traced through my code to insert something into a HashMap, and
+it seems to be doing the right things, but the new association doesn't stay
+in my HashMap.  How could that be?</strong>
+</p>
+<p>
+Perhaps it doesn't stay because it never was there to begin with.  Think about
+this:
+</p>
+<pre>
+	int a[10];
+	a[2] = 42;
+	int x = a[2];
+	x = 86;
+	cout &lt;&lt; a[2] &lt;&lt; endl;  // writes 42.  Why didn't 86 "stay" there?
+	int&amp; y = a[2];
+	y = 99;
+	cout &lt;&lt; a[2] &lt;&lt; endl;  // writes 99.  Why does 99 stay there?
+</pre>
+</li>
+<li>
+<p>
+<strong>If the street map data file contains more than one point of
+interest with the same name (e.g., <code>Northern Cafe|<em>lat<sub>1</sub>
+long<sub>1</sub></em></code> and <code>Northern Cafe|<em>lat<sub>2</sub>
+long<sub>2</sub></em></code>), what should I do?</strong>
+</p>
+<p>
+Associate that name with just one of the indicated coordinate pairs (e.g.,
+<em>lat<sub>2</sub> long<sub>2</sub></em>)&mdash;it's your choice which one,
+so depending on how your code is written for the normal case of no duplicate
+names, it might just naturally save only the first one you encounter when
+processing the file, or perhaps the only last one you encounter).  The
+mapdata.txt file we give you has three instances of that situation.
+</p>
+</li>
+<li>
+<p>
+<strong>My program seems to run correctly, but runs awfully slowly, and I
+know it's not because of bad algorithms (O(N<sup>2</sup>) instead of O(N),
+etc.).  How can I speed it up?</strong>
+</p><p>
+Especially if it's Visual C++, it may be that you're building in the Debug
+configuration, which inserts code to check for many STL usage errors.
+These are helpful during debugging, but can slow things down.  Follow the
+instructions in <a href="../../Homeworks/4/spec.html">Homework 4</a>, problem
+7 to build an optimized version.
+</p>
+</li>
+<li>
+<p>
+<strong>Do we know enough from this class to do a complexity analysis of
+A* or simulated annealing?</strong>
+</p>
+<p>
+No.  If one of those is an approach you took, then in your report, for the
+functions for which you implemented A* or simulated annealing, say so and
+instead of telling us the big-O for that function, briefly describe the data
+structures you used.
+</p>
+</li>
+<li>
+<p>
+<strong>If a street segment from point A to point B has a PoI associated with
+it, I compute a midpoint M between A and B, and add a segment named "a path"
+connecting the PoI to M.  I also connect M to A and B.  Should A also be
+directly connected to B?</strong>
+</p>
+<p>
+Yes.
+</p>
+</li>
+</ol>
+</body>
+</html>

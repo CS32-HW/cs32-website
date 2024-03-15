@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>CS 32 Project 4, Winter 2024</title>
+</head>
+<body>
+<div align="right">
+Winter 2024 CS 32
+</div>
+<div align="center">
+<h2>Programming Assignment 4<br />
+BruinTour</h2>
+<p>
+<strong>Due 11:00 PM Thursday, March 14</strong><br/>
+</p>
+</div>
+<p>
+The <a href="spec.pdf">Project 4 specification document</a> has been posted.
+</p><p>
+The posted <a href="provided.zip">provided code</a> includes a main routine
+you can use to test the whole system, as well as the .h files the spec says
+we will provide.  Additionally, you can use
+<a href="mapdata.txt">mapdata.txt</a> (a large map data file).  You can
+create other data files to help you test (e.g. small map data files with
+simpler to read numbers).
+</p><p>
+Just for your information, here are some of the web sites Carey used when
+building the map data file:
+<ul>
+<li>
+<a href="http://www.latlong.net" target="_blank">http://www.latlong.net</a>
+to look up latitude and longitude for any address
+</li><li>
+<a href="http://wiki.openstreetmap.org/wiki/Downloading_data#Choose_your_region"
+target="_blank">http://wiki.openstreetmap.org/wiki/Downloading_data#Choose_your_region</a>
+</li>
+</ul>
+<h3>Updates</h3>
+<p>
+3/12 10:50pm: Spec p. 27 was updated to clarify that generate_tour should not
+generate a turn command for a turn of less than 1 degree or greater than 359
+degrees.
+</p>
+3/10 2:50pm: The spec orignally said to give the file you turn in with your
+hash map the name <em>HashMap.h</em>, but everywhere else we call it
+<em>hashmap.h</em>.  Just to be consistent, we changed the spec to say it
+should be named <em>hashmap.h</em>, but we'll accept either name for the file.
+The class itself must be named HashMap.
+<p>
+3/9 9:20pm: If you can't get your HashMap class to work well enough to make
+progress on the other classes that use HashMaps, you can use the
+implementation in <a href="scaffoldhashmap.h">scaffoldhashmap.h</a>
+temporarily, switch your attention to implementing the other classes, and go
+back to working on <en>your</em> HashMap implementation later.  Make sure you
+save your current HashMap somewhere else for when you go back to working on it.
+(You can't turn in this scaffold implementation as yours, since it uses
+unordered_map to implement HashMap, which is forbidden by the spec.)
+</p>
+<p style="margin-bottom: 0">
+3/8 3:00am: If you downloaded (or viewed in a browser) the spec before 3/8
+3:00am, re-download (or reload it in your browser); a number of issues have
+been fixed:
+</p>
+<ul style="margin-top: 0">
+<li>
+p. 13: The example of how to use HashMap was edited to correct when a rehash
+occurs, making it consistent with requirement 7 on p.15.
+</li><li>
+p. 14: The interface to the <em>find()</em> method has been corrected, and an
+overload we have written for you has been added.  The second-to-last paragraph
+of p. 15 says a bit about this.  (The paragraph after that is worth reading as
+well.)
+</li><li>
+p. 16, 21, and 25: The interfaces to the three classes on these pages
+mistakenly had pure virtual functions, and the methods that should be const
+are indeed declared const.
+</li>
+</ul>
+<p>
+3/8 1:00am: If you downloaded provided.zip before 3/8 1:00am, re-download it;
+the last (I hope) little issue has been fixed.  Each of the six files in the
+zip file should replace the ones you dowloaded before.
+</p>
+<p>
+<s>3/6 11:30pm: If you downloaded provided.zip before 3/6 11:30pm, re-download it;
+some little issues have been fixed.  Each of the six files in the zip file
+should replace the ones you dowloaded before.</s>
+</p>
+<p>
+3/6 11:10pm: If you downloaded mapdata.txt before 3/6 11:10pm, re-download it;
+there was an incorrect point of interest count for one of the street segments.
+</p>
+</body>
+</html>

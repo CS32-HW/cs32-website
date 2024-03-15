@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>CS 32 Project 3, Winter 2024</title>
+</head>
+<body>
+<div align="right">
+Winter 2024 CS 32
+</div>
+<div align="center">
+<h2>Programming Assignment 3<br />
+Marble Madness</h2>
+<p>
+<strong>Part 1 due 11:00 PM Saturday, February 24</strong><br/>
+<strong>Part 2 due 11:00 PM Sunday, March 3</strong><br/>
+</p>
+</div>
+<p>
+The <a href="spec.pdf">Project 3 specification document</a> is posted.
+</p>
+<p>
+<strong>Updates</strong>
+</p>
+<ul>
+<li>
+2/20 3:45pm: Tha sample executables were corrected so that Vertical RageBots
+move vertically instead of horizontally.
+</li><li>
+2/18 1:40pm: There was a period of time before now when the spec said that the
+chracter <em>m</em> in a level data file represented a marble.  That has been
+corrected to say the letter is <em>b</em>, which corresponds to what's actually
+in the level files we provide.  (At some point after the files were prepared
+and Level.h was written, it was decided to call the items marbles, not, say,
+beads.)
+</li><li>
+2/17 1:00pm: Spec pp. 13, 14, and 21 were corrected to show that the method
+that returns the path to the assets directory is named <em>assetPath()</em>,
+not <em>assetDirectory()</em>.
+</li>
+</ul>
+<p>
+To see what the game looks like in action:
+</p>
+<ul>
+<li>
+Windows:  Open <a href="MarbleMadness-sample-win.zip">the Windows sample
+executable zip file</a> and drag the folder named MarbleMadness in it to
+your desktop.  In that desktop folder, double-click on the MarbleMadness
+application.  (If the program crashes after 1 to 30 seconds with a dialog
+box showing an error code 0xc0000022, try disabling your antivirus software.
+Unfortunately, we can't tell the SEASnet Windows Server to accept that
+there's no virus, so it may be impossible to run MarbleMadness on that server.)
+</li><li>
+macOS:  You'll need to have XQuartz installed to run the program.
+<ol>
+<li>
+Install <a href="http://xquartz.org" target="_blank">XQuartz</a>:
+<ol type="a">
+<li>
+Click the download link, open the downloaded .pkg file, XQuartz.pkg, and
+follow the installation instructions.
+</li><li>
+Log out and log back in again.  (It's possible that you might not have to
+do this step, but we're not sure.)
+</li><li>
+To verify the installation, open a Terminal window and run the command
+<code>echo $DISPLAY</code>.  That should produce one line of output that
+ends with <code>org.xquartz:0</code>.
+</li>
+</ol>
+</li><li>
+Unzip <a href="MarbleMadness-sample-mac.zip">the Mac sample executable zip
+file</a>.  In that zip file is a file named README.txt that tells you how
+to launch the program.
+</li>
+</ol>
+</li><li>
+Linux:<!--***  We haven't yet tested the Linux version, but it builds. ***-->
+<ol>
+<li>
+Install OpenGL and freeGLUT (already installed on the SEASnet Linux
+servers cs32.seas.ucla.edu, lnxsrv06.seas.ucla.edu, lnxsrv07.seas.ucla.edu,
+and lnxsrv09.seas.ucla.edu):
+<ul>
+<li>Ubuntu: <code>sudo apt-get install freeglut3 freeglut3-dev</code></li>
+<li>Fedora: <code>sudo yum install freeglut freeglut-devel</code></li>
+</ul>
+</li><li>
+Unzip <a href="MarbleMadness-sample-linux.zip">the Linux sample executable
+zip file</a>.  Change into the MarbleMadness directory.  In that directory
+there is a file named README that tells you how to launch the program. 
+You won't hear any sound effects.  The Linux version builds and tries to
+connect to an X11 server, so it should work if your DISPLAY environment
+variable is set correctly.  When we have a chance, we may have a way to
+get sound effects working.
+</li>
+</ol>
+</li>
+</ul>
+You can also download the project skeletons with the code we've written,
+for <a href="MarbleMadness-skeleton-win.zip">Windows</a>,
+<a href="MarbleMadness-skeleton-mac.zip">macOS with Xcode</a>,
+<a href="MarbleMadness-skeleton-cmdmac.zip">macOS on the command line</a>, or
+<a href="MarbleMadness-skeleton-linux.zip">Linux</a>, and make sure you can
+build and run them.  All they'll do is close the window after you type
+<code>q</code>, but at least you can verify that the graphics library works
+for you.  Even if you're not ready to put time into this project at this
+moment, <strong>test this now!</strong> You don't need to write any code to
+test this.  
+</p><p>
+The <strong>only</strong> files you will modify are Actor.h, Actor.cpp,
+StudentWorld.h, and StudentWorld.cpp.  Indeed, those will be the only code
+files you'll turn in, so in implementing your solution, you must
+<strong>not</strong> depend on any changes you make to code files other than
+those four.
+</p><p>
+At some point in Project 3, you may find the
+<a href="../../stringstreams.html">Stringstreams</a> writeup helpful.
+</p><p>
+As a simple example of how a StudentWorld object and an actor object can
+interact, this <a href="demo.zip">demo zip file</a> has the StudentWorld and
+Actor files for a simple demo that has one object appear that plays a sound
+whenever you hit the space key.  That object never dies, so type
+<code>q</code> to end the demo.  (Our framework intercepts the
+<code>q</code> to end the game.)
+</p>
+<p style="margin-bottom:0">
+Notes for Visual C++ users:
+</p>
+<ul style="margin-top:0">
+<li>
+When you open the Windows skeleton zip file, make sure you drag the
+MarbleMadness folder to your desktop (or somewhere else) and in the folder
+there, double-click on the .sln solution file to open the project in Visual
+C++.  It doesn't work if you try to work with the one embedded in the zip
+file.
+</li>
+<li>
+If the Windows skeleton doesn't build for you,
+you might need to ensure that your project is using Windows SDK Version
+10.0.19041.0 or 10.18362.0 (or possibly 10.0.22000.0 or higher).  To
+do this:
+<ol style="margin-top:0">
+<li>
+Launch the Visual Studio Installer, find your version of Visual Studio,
+and select Modify.  In the list on the right side, under Desktop development
+with C++, under Optional, make sure one of the Windows 11 SDK or Windows 10
+SDK options numbered 10.0.18362.0 or higher is selected.
+</li><li>
+After modifying your Visual Studio installation, open the project in Visual
+Studio and right-click on Solution 'MarbleMadness' above the list of source
+files.  Select Retarget Solution from the menu and choose the newly installed
+version of the SDK if accepting "10.0 (latest installed version)" doesn't
+work for you.
+</li><li>
+Build the project.
+</li>
+</ol>
+</li>
+<li>
+Also, if the skeleton crashes after 1 to 30 seconds with a dialog box
+showing an error code 0xc0000022, try disabling your antivirus software
+and building the executable.
+</li>
+</ul>
+<p style="margin-bottom:0">
+Notes for Xcode users:
+</p>
+<ul style="margin-top:0">
+<li>
+You might get a message at startup relating to the Assets
+directory.  If you want to fix the issue just for this project, select
+File / Project Settings... and for Derived Data Location, select
+Project-relative Location.  If instead you want to fix it for every
+project you create with Xcode, select Xcode / Preferences... and for the
+Derived Data, select Relative.  Alternatively, you could simply change the
+assetDirectory string literal in main.cpp to be a full path name to wherever
+you choose to put the Assets directory.
+</li>
+<li>
+Your program may write a lot of log messages to the Xcode output window.
+Each message starts with the date and time; the first message is
+"Initializing libGL."  You can ignore these messages.  When your program
+finishes, though, the last line should be the "Program ended with exit code:
+0" that Xcode writes, and above that you should see "No memory leaks were
+detected".
+</li>
+</ul>
+</body>
+</html>

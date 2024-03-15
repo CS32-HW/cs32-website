@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>CS32 Homework 3, Winter 2024</title>
+</head>
+<body>
+<div align="right">
+Winter 2024 CS 32
+</div>
+<div align="center">
+<h2>Homework 3</h2>
+<p>
+<strong>Time due: 11:00 PM Wednesday, February 14</strong>
+</p>
+</div>
+<ol>
+<li>
+<p>
+You are developing a game for pre-schoolers that features different kinds of
+domesticated animals (e.g., ducks and cats).  Every animal has a name (e.g.,
+Daffy).  Every kind of animal makes a distinctive sound when it speaks (e.g.
+"Quack").  When most kinds of animals move, they walk, but a few kinds may do
+something different.
+</p><p>
+Declare and implement the classes named in the sample program below in such
+a way that the program compiles, executes, and produces <em>exactly</em> the
+output shown.  You must not change the implementations of
+<code>animate</code> or <code>main</code>.
+</p>
+<pre>
+#include &lt;iostream>
+#include &lt;string>
+using namespace std;
+
+<em>Your declarations and implementations would go here</em>
+
+void animate(const Animal* a)
+{
+    a->speak();
+    cout &lt;&lt; "!  My name is " &lt;&lt; a->name()
+         &lt;&lt; ".  Watch me " &lt;&lt; a->moveAction() &lt;&lt; "!\n";
+}
+
+int main()
+{
+    Animal* animals[4];
+    animals[0] = new Cat("Puss in Boots");
+      // Pigs have a name and a weight in pounds.  Pigs under 180
+      // pounds oink; pigs weighing at least 180 pounds grunt.
+    animals[1] = new Pig("Napoleon", 190);
+    animals[2] = new Pig("Wilbur", 50);
+    animals[3] = new Duck("Daffy");
+
+    cout &lt;&lt; "Here are the animals." &lt;&lt; endl;
+    for (int k = 0; k &lt; 4; k++)
+        animate(animals[k]);
+
+      // Clean up the animals before exiting
+    cout &lt;&lt; "Cleaning up." &lt;&lt; endl;
+    for (int k = 0; k &lt; 4; k++)
+        delete animals[k];
+}
+</pre>
+<p>
+Output produced:
+</p>
+<pre>
+Here are the animals.
+Meow!  My name is Puss in Boots.  Watch me walk!
+Grunt!  My name is Napoleon.  Watch me walk!
+Oink!  My name is Wilbur.  Watch me walk!
+Quack!  My name is Daffy.  Watch me swim!
+Cleaning up.
+Destroying Puss in Boots the cat
+Destroying Napoleon the pig
+Destroying Wilbur the pig
+Destroying Daffy the duck
+</pre>
+<p>
+Decide which function(s) should be pure virtual, which should be non-pure
+virtual, and which could be non-virtual.  Experiment to see what output
+is produced if you mistakenly make a function non-virtual when it should
+be virtual instead.
+</p><p>
+To force you to explore the issues we want you to, we'll put some constraints
+on your solution:
+</p>
+<ul>
+<li>
+You must not declare any struct or class other than Animal, Cat, Pig, and
+Duck.
+</li><li>
+The Animal class must not have a default constructor.  The only
+constructor you may declare for Animal must have exactly one parameter.
+That parameter must be of type string, and it must be a useful parameter.
+</li><li>
+Although the expression <code>new Pig("Snowball", 170)</code> is
+fine, the expression <code>new Animal("Sylvester")</code> must
+produce a compilation error.  (A client can create a particular
+<em>kind</em> of animal object, like a <code>Pig</code>, but is
+not allowed to create an object that is just a plain <code>Animal</code>.)
+</li><li>
+Other than constructors and destructors (which can't be const), all member
+functions must be const member functions.
+</li><li>
+No two functions with non-empty bodies may have the same implementation, or
+implementations that have the same effect for a caller.  For example, there's
+a better way to deal with the <code>name()</code> function than to have each
+kind of animal declare and identically implement a name function.  (For
+people looking for loopholes, notice that <code>{ return "Moo"; }</code> and
+<code>{ return "Squeak"; }</code> do not have the same effect, but <code>{
+return "walk"; }</code> and <code>{ string s("wa"); return s + "lk"; }</code>
+<em>do</em> have the same effect, which is to return <code>"walk"</code>.)
+</li><li>
+No implementation of a <code>name()</code> function may explicitly call any
+other function.
+</li><li>
+No class may have a data member whose value is identical for every object of
+a particular class type.  (For example, <code>Cat</code> may not have, say,
+an <code>int</code> data member whose value is always 42 for every single
+<code>Cat</code> object.) 
+</li><li>
+An object of a derived class must not redundantly store the same data in both
+a derived data member and a base data member.  For example, if a
+<code>Duck</code> stores its age in one of its data members, it must not also
+store its age in a data member of its <code>Animal</code> base part.
+</li><li>
+All data members must be declared <code>private</code>.  You may declare
+member functions <code>public</code> or <code>private</code>.  Your solution
+must <em>not</em> declare any <code>protected</code> members (which we're
+not covering in this class).  Your solution must not contain the word
+<code>friend</code>.
+</li>
+</ul>
+<p>
+In a real program, you'd probably have separate Animal.h, Animal.cpp, Cat.h,
+Cat.cpp, etc., files.  For simplicity for this problem, you'll just put
+everything in one file.  What you'll turn in for this problem will be a file
+named <code>animal.cpp</code> containing the definitions and implementations
+of the four classes, and nothing more.  (In other words, turn in only the
+program text that replaces <code><em>Your declarations and implementations
+would go here</em></code>.)
+</p>
+</li>
+<li>
+<p>
+The following is a declaration of a function that takes a double and returns
+true if a particular property of that double is true, and false otherwise.
+(Such a function is called a <em>predicate</em>.)
+</p>
+<pre>
+        bool somePredicate(double x);
+</pre>
+<p>
+Here is an example of an implementation of the predicate <em>x is
+negative</em>:
+</p>
+<pre>
+        bool somePredicate(double x)
+        {
+            return x &lt; 0;
+        }
+</pre>
+<p>
+Here is an example of an implementation of the predicate
+<em>sin e<sup><font size="-1">x</font></sup> is greater than cos x</em>:
+</p>
+<pre>
+        bool somePredicate(double x)
+        {
+            return sin(exp(x)) > cos(x); // include &lt;cmath> for std::sin, etc.
+        }
+</pre>
+<p>
+Here are five functions, with descriptions of what they are supposed to do.
+They are incorrectly implemented.  The first four take an array of doubles
+and the number of doubles that should be considered to be in the array; the
+last takes two arrays of doubles and the number of doubles to examine in
+each.  (Note: "position", "index", and "subscript" are synonymous when
+talking about an array:  The beginning element is at position/index/subscript
+0, etc.)
+</p>
+<pre>
+          // Return true if the somePredicate function returns false for at
+          // least one of the array elements; return false otherwise.
+        bool anyFalse(const double a[], int n)
+        {
+            return false;  // This is not always correct.
+        }
+
+          // Return the number of elements in the array for which the
+          // somePredicate function returns false.
+        int countFalse(const double a[], int n)
+        {
+            return -999;  // This is incorrect.
+        }
+
+          // Return the subscript of the first element in the array for which
+          // the somePredicate function returns false.  If there is no such
+          // element, return -1.
+        int firstFalse(const double a[], int n)
+        {
+            return -999;  // This is incorrect.
+        }
+
+          // Return the subscript of the first double in the array that is &lt;=
+          // all doubles in the array (i.e., return the smallest subscript m such
+          // that a[m] &lt;= a[k] for all k from 0 to n-1).  If the function is
+          // told that no doubles are to be considered to be in the array,
+          // return -1.
+        int locateMinimum(const double a[], int n)
+        {
+            return -999;  // This is incorrect.
+        }
+
+          // If all n2 elements of a2 appear in the n1 element array a1, in
+          // the same order (though not necessarily consecutively), then
+          // return true; otherwise (i.e., if the array a1 does not include
+          // a2 as a not-necessarily-contiguous subsequence), return false.
+          // (Of course, if a2 is empty (i.e., n2 is 0), return true.)
+          // For example, if a1 is the 7 element array
+          //    10 50 40 20 50 40 30
+          // then the function should return true if a2 is
+          //    50 20 30
+          // or
+          //    50 40 40
+          // and it should return false if a2 is
+          //    50 30 20
+          // or
+          //    10 20 20
+        bool includes(const double a1[], int n1, const double a2[], int n2)
+        {
+            return false;  // This is not always correct.
+        }
+</pre>
+<p>
+Your implementations of those first three functions must call the function
+named <code>somePredicate</code> where appropriate instead of hardcoding a
+particular expression like <code>x &lt; 0</code> or <code>sin(exp(x)) >
+cos(x)</code>.  (When you test your code, we don't care what predicate you
+have the function named <code>somePredicate</code> implement: <em>x
+&lt; 0</em> or <em>x == 42</em> or <em>sqrt(log(x*x+1)) > 5</em> or whatever,
+is fine.)
+</p><p>
+Replace the incorrect implementations of these functions with correct ones that
+use recursion in a useful way; your solution must not use the keywords
+<code>while</code>, <code>for</code>, or <code>goto</code>.  You must not use
+global variables or variables declared with the keyword <code>static</code>,
+and you must not modify the function parameter lists.  You must not use any
+references or pointers as parameters except for the parameters representing
+arrays.  (Remember that a function parameter <code>x</code> declared
+<code>T x[]</code> for any type <code>T</code> means exactly the same thing
+as if it had been declared <code>T* x</code>.)  If any of the parameters
+<code>n</code>, <code>n1</code>, or <code>n2</code> is negative, act as if it
+were zero.
+</p><p>
+Here is an example of an implementation of <code>anyFalse</code> that does
+<em>not</em> satisfy these requirements because it doesn't use recursion and
+it uses the keyword <code>for</code>:
+</p>
+<pre>
+        bool anyFalse(const double a[], int n)
+        {
+            for (int k = 0; k &lt; n; k++)
+            {
+                if ( ! somePredicate(a[k]))
+                    return true;
+            }
+            return false;
+        }
+</pre>
+<p>
+You will not receive full credit if the <code>anyFalse</code>,
+<code>countFalse</code>, or <code>firstFalse</code> functions cause each
+value <code>somePredicate</code> returns to be tested more than once.
+Consider all operations that a function performs that compares two doubles
+(e.g. <code>&lt;=</code>, <code>==</code>, etc.).  You will not receive
+full credit if for nonnegative <code>n</code> or <code>n1</code>, the
+<code>locateMinimum</code> function causes operations like these to be
+performed on doubles more than <code>n</code> times, or the
+<code>includes</code> function causes them to be performed on doubles more
+than <code>n1</code> times.  (Notice that this limitation is for comparisons
+of doubles; there's no limit on comparisons of ints.)  For example, this
+non-recursive (and thus unacceptable for this problem) implementation of
+<code>locateMinumum</code> performs a &lt;= comparison of two doubles many,
+many more than <code>n</code> times, which is also unacceptable: 
+<pre>
+        int locateMinimum(const double a[], int n)
+        {
+            for (int k1 = 0; k1 &lt; n; k1++)
+            {
+                int k2;
+                for (k2 = 0; k2 &lt; n &amp;&amp; a[k1] &lt;= a[k2]; k2++)
+                    ;
+                if (k2 == n)
+                    return k1;
+            }
+            return -1;
+        }
+</pre>
+<p>
+Each of these functions can be implemented in a way that meets the spec
+without calling any of the other four functions.  (If you implement a
+function so that it <em>does</em> call one of the other functions, then it
+will probably not meet the limit stated in the previous paragraph.)
+</p><p>
+For this part of the homework, you will turn in one file named
+<code>linear.cpp</code> that contains the five functions and nothing more:
+no #include directives, no using namespace std;, no implementation of
+<code>somePredicate</code> and no main routine.  (Our test framework will
+precede the functions with appropriate #include directives, using statement,
+and our own implementation of a function named <code>somePredicate</code> that
+takes a double and returns a bool.)
+</p>
+</li>
+<li>
+<p>
+Replace the implementation of <code>pathExists</code> from
+<a href="../2/spec.html">Homework 2</a> with one that does not use an
+auxiliary data structure like a stack or queue, but instead uses
+recursion in a useful way.  Here is pseudocode for a solution:
+</p>
+<pre>
+        <em>If the start location is equal to the ending location, then we've
+            solved the maze, so return true.
+        Mark the start location as visted.
+        For each of the four directions,
+            If the location one step in that direction (from the start
+                location) has no wall and is unvisited,
+                    then if calling pathExists starting from that location
+                                (and ending at the same ending location as in
+                                the current call) returns true,
+                             then return true.
+        Return false.</em>
+</pre>
+<p>
+(If you wish, you may implement the pseudocode for loop with a series of four
+if statements instead of a loop.)
+</p><p>
+You may make the same simplifying assumptions that we allowed you to make
+for Homework 2 (e.g., that the maze contains only Xs and dots, is bounded by
+Xs, etc.).
+</p><p>
+For this part of the homework, you will turn in one file named
+<code>maze.cpp</code> that contains the Coord class (only if you use it) and
+the <code>pathExists</code> function and nothing more.
+</p>
+</li>
+<li>
+<p>
+Replace the incorrect implementations of the <code>countIncludes</code> and
+the <code>order</code> functions below with correct ones that use recursion in
+a useful way.  Except in the code for the <code>divide</code> function that we
+give you below, your solution must not use the keywords <code>while</code>,
+<code>for</code>, or <code>goto</code>.  You must not use global variables
+or variables declared with the keyword <code>static</code>, and you must
+not modify the function parameter lists.  You must not use any references
+or pointers as parameters except for the parameters representing arrays and
+the parameters of the <code>exchange</code> and <code>divide</code>
+functions that we have provided.  If any of the parameters <code>n1</code>,
+<code>n2</code>, or <code>n</code> is negative, act as if it were zero.
+</p>
+<pre>
+          // Return the number of ways that all n2 elements of a2 appear in
+          // the n1 element array a1 in the same order (though not necessarily
+          // consecutively).  The empty sequence (i.e. one where n2 is 0)
+          // appears in a sequence of length n1 in 1 way, even if n1 is 0.
+          // For example, if a1 is the 7 element array
+          //        10 50 40 20 50 40 30
+          // then for this value of a2     the function must return
+          //        10 20 40                        1
+          //        10 40 30                        2
+          //        20 10 40                        0
+          //        50 40 30                        3
+        int countIncludes(const double a1[], int n1, const double a2[], int n2)
+        {
+            return -999;  // This is incorrect.
+        }
+
+          // Exchange two doubles
+        void exchange(double&amp; x, double&amp; y)
+        {
+            double t = x;
+            x = y;
+            y = t;
+        }
+
+          // Rearrange the elements of the array so that all the elements
+          // whose value is > divider come before all the other elements,
+          // and all the elements whose value is &lt; divider come after all
+          // the other elements.  Upon return, firstNotGreater is set to the
+          // index of the first element in the rearranged array that is
+          // &lt;= divider, or n if there is no such element, and firstLess is
+          // set to the index of the first element that is &lt; divider, or n
+          // if there is no such element.
+          // In other words, upon return from the function, the array is a
+          // permutation of its original value such that
+          //   * for 0 &lt;= i &lt; firstNotGreater, a[i] > divider
+          //   * for firstNotGreater &lt;= i &lt; firstLess, a[i] == divider
+          //   * for firstLess &lt;= i &lt; n, a[i] &lt; divider
+          // All the elements > divider end up in no particular order.
+          // All the elements &lt; divider end up in no particular order.
+        void divide(double a[], int n, double divider,
+                                            int&amp; firstNotGreater, int&amp; firstLess)
+        {
+            if (n &lt; 0)
+                n = 0;
+        
+              // It will always be the case that just before evaluating the loop
+              // condition:
+              //  firstNotGreater &lt;= firstUnknown and firstUnknown &lt;= firstLess
+              //  Every element earlier than position firstNotGreater is > divider
+              //  Every element from position firstNotGreater to firstUnknown-1 is
+              //    == divider
+              //  Every element from firstUnknown to firstLess-1 is not known yet
+              //  Every element at position firstLess or later is &lt; divider
+        
+            firstNotGreater = 0;
+            firstLess = n;
+            int firstUnknown = 0;
+            while (firstUnknown &lt; firstLess)
+            {
+                if (a[firstUnknown] &lt; divider)
+                {
+                    firstLess--;
+                    exchange(a[firstUnknown], a[firstLess]);
+                }
+                else
+                {
+                    if (a[firstUnknown] > divider)
+                    {
+                        exchange(a[firstNotGreater], a[firstUnknown]);
+                        firstNotGreater++;
+                    }
+                    firstUnknown++;
+                }
+            }
+        }
+
+          // Rearrange the elements of the array so that
+          // a[0] >= a[1] >= a[2] >= ... >= a[n-2] >= a[n-1]
+          // If n &lt;= 1, do nothing.
+        void order(double a[], int n)
+        {
+            return;  // This is not always correct.
+        }
+</pre>
+<p>
+(Hint:  Using the <code>divide</code> function, the <code>order</code>
+function can be written in fewer than eight short lines of code.)
+</p><p>
+Consider all operations that a function performs that compare two doubles
+(e.g.  <code>&lt;=</code>, <code>==</code>, etc.).  You will not receive full
+credit if for nonnegative <code>n2</code> and <code>n1 >= n2</code>, the
+<code>countIncludes</code> function causes operations like these to be called
+more than <code>factorial(n1+1) / (factorial(n2)*factorial(n1+1-n2))</code>
+times.  The <code>countIncludes</code> function can be implemented in a way
+that meets the spec without calling any of the functions in problem 2.  (If
+you implement it so that it <em>does</em> call one of those functions, then
+it will probably not meet the limit stated in this paragraph.)
+</p><p>
+For this part of the homework, you will turn in one file named
+<code>tree.cpp</code> that contains the four functions above and nothing more.
+</p>
+</li>
+</ol>
+<h3>Turn it in</h3>
+<p>
+By Tuesday, February 13, there will be a link on the class webpage that will
+enable you to turn in this homework.  Turn in one zip file that contains your
+solutions to the homework problems.  The zip file must contain one to four of
+the four files <code>animal.cpp</code>, <code>linear.cpp</code>,
+<code>maze.cpp</code>, and <code>tree.cpp</code>, depending on how many of
+the problems you solved.  Your code must be such that if we insert it into a
+suitable test framework with a main routine and appropriate #include
+directives and using namespace std;, it compiles.  (In other words, it must
+have no missing semicolons, unbalanced parentheses, undeclared variables, etc.)
+</p>
+</body>
+</html>

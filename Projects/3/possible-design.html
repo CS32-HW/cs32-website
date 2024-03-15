@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>CS 32 Project 3 Possible Design, Winter 2022</title>
+</head>
+<body>
+<p>
+Here is one possible design of the Actor inheritance hierarchy:
+</p>
+<pre>
+GraphObject
+    Actor
+        Agent
+            Player
+            Robot
+                RageBot
+                ThiefBot
+                    RegularThiefBot
+                    MeanThiefBot
+        Exit
+        Wall
+        Marble
+        Pit
+        Pea
+        ThiefBotFactory
+        PickupableItem
+            Crystal
+            Goodie
+                ExtraLifeGoodie
+                RestoreHealthGoodie
+                AmmoGoodie
+</pre>
+<p>
+You are not obligated to follow this particular design, but you must take
+advantage of inheritance to avoid large amounts of repetitive code.  The
+technique in item 8 on pp. 48-49 of the spec is especially helpful in
+reducing repetition.  For example, suppose you had code like this:
+</p>
+<pre>
+    // Goodie::doSomething() is virtual.
+
+    void ExtraLifeGoodie::doSomething()
+    {
+        ...
+        <em>grant player extra life</em>
+        ...
+    }
+
+    void RestoreHealthGoodie::doSomething()
+    {
+        ...
+        <em>restore player health</em>
+        ...
+    }
+</pre>
+<p>
+where the several lines of omitted code is the same in the two functions.
+You might avoid the repeated code by instead doing something like this:
+</p>
+<pre>
+    void Goodie::doSomething()
+    {
+       ...   <em>(same as the code in the first ... in each function above)</em>
+       doActivity();
+       ...   <em>(same as the code in the second ... in each function above)</em>
+    }
+
+    void ExtraLifeGoodie::doActivity()
+    {
+        <em>grant player extra life</em>
+    }
+
+    void RestoreHealthGoodie::doActivity()
+    {
+        <em>restore player health</em>
+    }
+</pre>
+<p>
+where <code>doActivity</code> is declared pure virtual in Goodie.  This way,
+a derived class of Goodie does not have to implement <code>doSomething</code>
+at all; it can just inherit Goodie's implementation of <code>doSomething</code>
+and provide in the virtual <code>doActivity</code> functions only the code that
+is specific to that derived class.
+</p><p>
+This idea applies in many situations.  For example, suppose you had this:
+</p>
+<pre>
+    void RageBot::doSomething()
+    {
+        ... <em>code specific to RageBots</em> ...
+        ... <em>code common to all robots</em> ...
+    }
+
+    void ThiefBot::doSomething()
+    {
+        ... <em>code specific to ThiefBots</em> ...
+        ... <em>code common to all robots</em> ...
+    }
+</pre>
+<p>
+You could factor out the common code this way:
+</p>
+<pre>
+    void Robot::doSomething()
+    {
+        doSomethingForSpecificRobotSubclass();  // declared pure virtual in Robot
+        ... <em>code common to all robots</em> ...
+    }
+
+    void RageBot::doSomethingforSpecificRobotSubclass()  // private
+    {
+        ... <em>code specific to RageBots</em> ...
+    }
+
+    void ThiefBot::doSomethingforSpecificRobotSubclass()  // private
+    {
+        ... <em>code specific to ThiefBots</em> ...
+    }
+</pre>
+<p>
+Because all of the common code is at one end of the original functions (the
+end in this example), another possible refactoring would be this:
+</p>
+<pre>
+    void Robot::doSomething()
+    {
+        ... <em>code common to all robots</em> ...
+    }
+
+    void RageBot::doSomething()
+    {
+        ... <em>code specific to RageBots</em> ...
+        Robot::doSomething();
+    }
+
+    void ThiefBot::doSomething()
+    {
+        ... <em>code specific to ThiefBots</em> ...
+        Robot::doSomething();
+    }
+</pre>
+<p>
+(In this case, if there was no <em>code specific to RageBots</em>, then
+rather than having <code>RageBot::doSomething</code> do nothing more than
+call <code>Robot::doSomething</code>, RageBot could simply not declare or
+implement <code>doSomething()</code> at all; by saying nothing, it would just
+inherit Robot's version.)
+</p><p>
+The downside to this second approach is that this code still compiles if the
+programmer accidentally omitted a call to <code>Robot::doSomething()</code>
+in one of the derived class implementations; this code doesn't enforce a
+requirement that every derived class's <code>doSomething</code>  must end by
+doing the common code.
+</p>
+</body>
+</html>

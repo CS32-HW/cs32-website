@@ -1,0 +1,26 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/transitional.dtd">
+<html>
+<head><title>Homework 3 Submission</title></head>
+<body>
+<h2>Homework 3 Submission</h2>
+<form enctype="multipart/form-data" method="post" action="submit.cgi" >
+<input type="hidden" name="asst" value="hw3"  />
+<p>
+Enter your 9-digit student ID:&nbsp;&nbsp;
+<input type="text" name="studentid" size="9" maxlength="9" autocomplete="off"  />
+</p>
+<p>According to the specification, you are to submit a single zip file.  Make sure you follow the requirements detailed in the specification, or your score on this assignment will be zero.</p>
+<p>
+Either
+<td><input type="submit" value="view" name="view"  /></td>
+ information about your most recent submission for this assignment,
+<br />or<br />
+select the zip file to be submitted
+<td><input type="file" name="hw3.zip" accept=".zip"  /></td>
+<br />and then
+<td><input type="submit" value="submit" name="submit"  /></td>
+it, replacing any earlier submission you might have made for this assignment.
+</p>
+</body>
+</html>

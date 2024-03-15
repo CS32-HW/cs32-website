@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>CS 32 Project 3 FAQ, Winter 2024</title>
+</head>
+<body>
+<div align="right">
+Winter 2024 CS 32
+</div>
+<div align="center">
+<h2>Project 3 FAQ</h2>
+</div>
+<ol>
+<li>
+<strong>
+<p>
+Is there anything we have to do about a sound that is playing getting cut off
+when another sound starts playing?
+</p>
+</strong>
+<p>
+No.  Our framework does that.  The historical reason is that on some platforms,
+two sounds playing at once sounded awful and there were limitations to the
+way we could control sounds, so we arranged to have a currently playing
+sound be aborted when a new one started.
+</p>
+</li>
+<li>
+<strong>Suppose there's a requirement about an interaction between an
+object of type A and an object of type B.  If the spec says that the A object
+has to manage that interaction or that both the A and the B objects have to
+manage it, but I find it more convenient to have the only the B object
+manage it, is it acceptable to have the only the B object manage it if the
+result is essentially the same?
+</strong>
+</p><p>
+Yes.
+</p>
+</li>
+<li>
+<p>
+<strong>Suppose that while calling <em>doSomething()</em> for each actor during
+a given tick, we create a new actor.  Must we call <em>doSomething()</em> for
+the new actor on the current tick?</strong>
+</p><p>
+It's you choice whether or not you do.  Of course, on the next tick,
+<em>doSomething()</em> will be called on all actors including that new one.
+</p>
+</li>
+<li>
+<p>
+<strong>What can I do to be more confident that my program will build for you
+when you test it and is not likely to have some flaw that will cause it to
+crash most of the time when you try to run it?</strong>
+</p><p>
+Run our sanity checker on the Linux server.  If it tells you you passed the
+sanity check, then even if you have a lot of things left unimplemented, we
+will probably still be able to test those features you have implemented.
+</p><p>
+Here's what to do:
+<ol>
+<li>
+Transfer your Actor.h, Actor.cpp, StudentWorld.h, and StudentWorld.cpp files
+to the cs32.seas.ucla.edu Linux server.
+</li><li>
+Put those files in a directory where you don't mind if files named
+GameConstants.h, GameWorld.h, GraphObject.h, Level.h, sanity.cpp, and sanity
+are created or overwritten.
+</li><li>
+Run the command <code>/usr/local/cs/bin/p3sanity</code><br/>
+This will copy our source files named above into the directory, build an
+executable named sanity, run it, and either tell you whether your program
+passes or fails the sanity check or silently crash at some point.  (For
+example, if it gets as far as telling you <em>About to call init for the
+StudentWorld</em> and then the program ends, something that init did caused
+it to crash.)
+</li>
+</ol>
+<p>
+The sanity checker does a simple test to check that loading a level doesn't
+crash (even if there are objects you haven't yet implemented), the player and
+walls at least are probably put in the right place, a player probably moves
+correctly, and cleanup and destruction of the StudentWorld doesn't crash. 
+This is generally enough for us to test your program without it crashing on
+almost every case.
+</p><p>
+Why might a program that appears to work for you crash for us most of the
+time?  It's usually because it relies on undefined behavior.  A common issue
+is either your assuming that a pointer you don't explicitly initialize is
+null or your intending to initialize it to null and forgetting to do so.  On
+your machine, it might happen to have the bit pattern of the null pointer
+representation, so it appears to work for you, but on our machine, it might
+not.  
+</p><p>
+If your program built for you on your machine but doesn't build under g32, it
+may be that you're doing something that is not Standard C++, such as
+</p>
+<ul>
+<li>
+Using setw, setfill, etc., without including &lt;iomanip>
+</li><li>
+Using an STL algorithm without including &lt;algorithm>
+</li>
+</ul>
+<p>
+If attempting to make an actor of type X do something crashes and you can't
+fix the problem before it's time to submit, that could well make even the first
+call to StudentWorld::move crash for a level that has a type X object in it.
+In that case, it's best to have the X object's doSomething just return
+immediately or perhaps after it does only as much as you know doesn't crash.
+</p>
+</li>
+<li>
+<p>
+<strong>Why is the sanity checker reporting memory leaks when it
+finishes?</strong>
+</p><p>
+Your program is allocating objects with <code>new</code> that it's never
+deallocating with <code>delete</code>.  The likeliest causes are one of these:
+</p>
+<ul>
+<li>
+When an actor should be removed from the game during a tick, your
+StudentWorld::move is doing it incorrectly.  Solving problem 1c or 1d of
+Homework 4 should indicate how to fix the problem.
+</li><li>
+StudentWorld::cleanUp is not deleting the player and all actors.
+</li>
+</ul>
+</li>
+</ol>
+</body>
+</html>

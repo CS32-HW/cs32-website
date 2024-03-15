@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>CS 32 Project 1 Solution, Winter 2024</title>
+</head>
+<body>
+<div align="right">
+Winter 2024 CS 32
+</div>
+<div align="center">
+<h2>Project 1 Solution</h2>
+</div>
+<p>
+In <a href="solution.zip">this Project 1 solution zip file</a>, here is
+what was affected by the addition of the history feature:
+</p>
+<ul>
+<li>
+The files <code>History.h</code> and <code>History.cpp</code>, containing the
+declaration and the implementation of the History class.
+</li>
+<li>
+The declarations of <code>City::history</code> and
+<code>City::m_history</code> in <code>City.h</code>.
+</li>
+<li>
+The implementations of <code>City::City</code> and <code>City::history</code>
+in <code>City.cpp</code>.
+</li>
+<li>
+The implementation of <code>City::preachToTootersAroundPlayer</code> in
+<code>City.cpp</code>.  
+</li>
+<li>
+The implementation of the <code>h</code> command in <code>Game::play</code>
+in <code>Game.cpp</code>.
+</li>
+</ul>
+To help you understand why each header was included, and why some were not
+(e.g., why <code>City.h</code> does not include <code>Tooter.h</code>), here's
+a synopsis of each file:
+<pre>
+<strong>// globals.h</strong>
+
+#ifndef GLOBALS_INCLUDED
+#define GLOBALS_INCLUDED
+
+...
+
+#endif // GLOBALS_INCLUDED
+
+<strong>// Game.h</strong>
+
+#ifndef GAME_INCLUDED
+#define GAME_INCLUDED
+
+class City;             <em>Game uses City*</em>
+
+class Game
+{
+  ...
+};
+
+#endif // GAME_INCLUDED
+
+<strong>// History.h</strong>
+
+#ifndef HISTORY_INCLUDED
+#define HISTORY_INCLUDED
+
+#include "globals.h"    <em>History uses MAXROWS and MAXCOLS</em>
+
+class History
+{
+  ...
+};
+
+#endif // HISTORY_INCLUDED
+
+<strong>// City.h</strong>
+
+#ifndef CITY_INCLUDED
+#define CITY_INCLUDED
+
+#include "globals.h"    <em>City uses MAXTOOTERS</em>
+#include "History.h"    <em>City declares a History data member</em>
+
+class Player;           <em>City uses Player*</em>
+class Tooter;           <em>City uses Tooter*</em>
+
+class City
+{
+  ...
+};
+
+#endif // CITY_INCLUDED
+
+<strong>// Player.h</strong>
+
+#ifndef PLAYER_INCLUDED
+#define PLAYER_INCLUDED
+
+class City;             <em>Player uses City*</em>
+
+class Player
+{
+  ...
+};
+
+#endif // PLAYER_INCLUDED
+
+<strong>// Tooter.h</strong>
+
+#ifndef TOOTER_INCLUDED
+#define TOOTER_INCLUDED
+
+class City;             <em>Tooter uses City*</em>
+
+class Tooter
+{
+  ...
+};
+
+#endif // TOOTER_INCLUDED
+
+<strong>// Game.cpp</strong>
+
+#include "Game.h"       <em>We define Game::Game, etc.</em>
+#include "City.h"       <em>We use City::City, etc.</em>
+#include "Player.h"     <em>We use Player::isPassedOut, etc.</em>
+#include "History.h"    <em>We use History::display</em>
+#include "globals.h"    <em>We use MAXTOOTERS, etc.</em>
+#include &lt;iostream>     <em>We use std::cout, etc.</em>
+#include &lt;string>       <em>We use std::string</em>
+#include &lt;cstdlib>      <em>We use std::exit</em>
+using namespace std;
+
+...
+
+<strong>// History.cpp</strong>
+
+#include "History.h"    <em>We define History::History, etc.</em>
+#include "globals.h"    <em>We use MAXROWS, etc.</em>
+#include &lt;iostream>     <em>We use std::cout, etc.</em>
+#include &lt;cstdlib>      <em>We use std::exit</em>
+using namespace std;
+
+...
+
+<strong>// City.cpp</strong>
+
+#include "City.h"       <em>We define City::City, etc.</em>
+#include "Player.h"     <em>We use Player::Player, etc.</em>
+#include "Tooter.h"     <em>We use Tooter::Tooter, etc.</em>
+#include "History.h"    <em>We use History::History, etc.</em>
+#include "globals.h"    <em>We use MAXROWS, etc.</em>
+#include &lt;iostream>     <em>We use std::cout, etc.</em>
+#include &lt;cstdlib>      <em>We use std::exit</em>
+using namespace std;
+
+...
+
+<strong>// Player.cpp</strong>
+
+#include "Player.h"     <em>We define Player::Player, etc.</em>
+#include "City.h"       <em>We use City::rows, etc.</em>
+#include "globals.h"    <em>We use INITIAL_PLAYER_HEALTH, etc.</em>
+#include &lt;iostream>     <em>We use std::cout, etc.</em>
+#include &lt;cstdlib>      <em>We use std::exit</em>
+using namespace std;
+
+...
+
+<strong>// Tooter.cpp</strong>
+
+#include "Tooter.h"     <em>We define Tooter::Tooter, etc.</em>
+#include "City.h"       <em>We use City::rows, etc.</em>
+#include "globals.h"    <em>We use randInt, etc.</em>
+#include &lt;iostream>     <em>We use std::cout, etc.</em>
+#include &lt;cstdlib>      <em>We use std::exit</em>
+using namespace std;
+
+...
+
+<strong>// utilities.cpp</strong>
+
+#include "globals.h"    <em>We implement randInt, etc.</em>
+#include &lt;random>       <em>We use std::random_device, etc.</em>
+#include &lt;utility>      <em>We use std::swap</em>
+using namespace std;
+
+...
+
+<strong>// main.cpp</strong>
+
+#include "Game.h"       <em>We use Game::Game, etc.</em>
+
+...
+</pre>
+</body>
+</html>

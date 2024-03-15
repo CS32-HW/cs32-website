@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>CS 32 Homework 3 Solution, Winter 2024</title>
+</head>
+<body>
+<div align="right">
+Winter 2024 CS 32
+</div>
+<div align="center">
+<h2>Homework 3 Solution</h2>
+</div>
+<table cellpadding="3">
+<colgroup width="30%" span="2"></colgroup>
+<tr><td><a href="#P1">Problem 1</a></td>
+    <td><a href="#P3">Problem 3</a></td></tr>
+<tr><td><a href="#P2">Problem 2</a></td>
+    <td><a href="#P4">Problem 4</a></td></tr>
+</table>
+<h4><a id="P1"></a>Problem 1:</h4>
+<p>
+Since all Animals have a name, and since the way you find out the name is
+going to be the same for all kinds of animals, the name should be a data
+member of Animal, and the function to retrieve it need not be virtual.
+</p>
+<p>
+The different kinds of animals may have different behavior for the
+speak and moveAction functions, so these should be virtual.  Since
+most animals have the same behavior for moveAction, it's convenient to
+have Animal::moveAction be an implementation that derived classes may
+inherit if they wish.  There is no reasonable default behavior for speak,
+so this should be pure virtual.
+</p>
+<p>
+Observe how the constructors for the derived classes pass the name to the
+Animal constructor.  Examine Pig's constructor especially.
+</p>
+<pre>
+// ======================================= Animal
+class Animal
+{
+  public:
+    Animal(string nm);
+    string name() const;
+    virtual void speak() const = 0;
+    virtual string moveAction() const;
+    virtual ~Animal() {}
+  private:
+    string m_name;
+};
+
+Animal::Animal(string nm)
+ : m_name(nm)
+{}
+
+string Animal::name() const
+{
+  return m_name;
+}
+
+string Animal::moveAction() const
+{
+  return "walk";
+}
+
+// ======================================= Cat
+class Cat : public Animal
+{
+  public:
+    Cat(string nm);
+    virtual void speak() const;
+    virtual ~Cat();
+  private:
+};
+
+Cat::Cat(string nm)
+ : Animal(nm)
+{}
+
+void Cat::speak() const
+{
+  cout &lt;&lt; "Meow";
+}
+
+Cat::~Cat()
+{
+  cout &lt;&lt; "Destroying " &lt;&lt; name() &lt;&lt; " the cat" &lt;&lt; endl;
+}
+
+// ======================================= Pig
+class Pig : public Animal
+{
+  public:
+    Pig(string nm, int wt);
+    virtual void speak() const;
+    virtual ~Pig();
+  private:
+    int m_weight;
+};
+
+Pig::Pig(string nm, int wt)
+ : Animal(nm), m_weight(wt)
+{}
+
+void Pig::speak() const
+{
+  if (m_weight &lt; 170)
+    cout &lt;&lt; "Oink";
+  else
+    cout &lt;&lt; "Grunt";
+}
+
+Pig::~Pig()
+{
+  cout &lt;&lt; "Destroying " &lt;&lt; name() &lt;&lt; " the pig" &lt;&lt; endl;
+}
+
+// ======================================= Duck
+class Duck : public Animal
+{
+  public:
+    Duck(string nm);
+    virtual void speak() const;
+    virtual string moveAction() const;
+    virtual ~Duck();
+};
+
+Duck::Duck(string nm)
+ : Animal(nm)
+{}
+
+void Duck::speak() const
+{
+  cout &lt;&lt; "Quack";
+}
+
+string Duck::moveAction() const
+{
+  return "swim";
+}
+
+Duck::~Duck()
+{
+  cout &lt;&lt; "Destroying " &lt;&lt; name() &lt;&lt; " the duck" &lt;&lt; endl;
+}
+</pre>
+<h4><a id="P2"></a>Problem 2:</h4>
+<pre>
+  // Return true if the somePredicate function returns false for at
+  // least one of the array elements; return false otherwise.
+bool anyFalse(const double a[], int n)
+{
+    if (n &lt;= 0)
+        return false;
+    if ( ! somePredicate(a[0]))
+        return true;
+    return anyFalse(a+1, n-1);
+}
+
+  // Return the number of elements in the array for which the
+  // somePredicate function returns false.
+int countFalse(const double a[], int n)
+{
+    if (n &lt;= 0)
+        return 0;
+    int t = (somePredicate(a[0]) ? 0 : 1);
+    return t + countFalse(a+1, n-1);
+}
+
+  // Return the subscript of the first element in the array for which
+  // the somePredicate function returns false.  If there is no such
+  // element, return -1.
+int firstFalse(const double a[], int n)
+{
+    if (n &lt;= 0)
+        return -1;
+    if ( ! somePredicate(a[0]))
+        return 0;
+    int k = firstFalse(a+1, n-1);
+    if (k == -1)
+        return -1;
+    return 1 + k;  // element k of "the rest of a" is element 1+k of a
+}
+
+  // Return the subscript of the first double in the array that is &lt;=
+  // all doubles in the array (i.e., return the smallest subscript m
+  // such that a[m] >= a[k] for all k from 0 to n-1n).  If the function
+  // is told that no doubles are to be considered to be in the array,
+  // return -1.
+int locateMinimum(const double a[], int n)
+{
+    if (n &lt;= 0)
+        return -1;
+    if (n == 1)
+        return 0;
+    int k = 1 + locateMinimum(a+1, n-1);  // locateMin can't return -1 here
+    return a[0] &lt;= a[k] ? 0 : k;
+
+    // Here's an alternative for the last two lines above:
+    // int k = locateMinimum(a, n-1);  // locateMin can't return -1 here
+    // return a[k] &lt;= a[n-1] ? k : n-1;
+}
+
+  // If all n2 elements of a2 appear in the n1 element array a1, in
+  // the same order (though not necessarily consecutively), then
+  // return true; otherwise (i.e., if the array a1 does not include
+  // a2 as a not-necessarily-contiguous subsequence), return false.
+  // (Of course, if a2 is empty (i.e., n2 is 0), return true.)
+  // For example, if a1 is the 7 element array
+  //    10 50 40 20 50 40 30
+  // then the function should return true if a2 is
+  //    50 20 30
+  // or
+  //    50 40 40
+  // and it should return false if a2 is
+  //    50 30 20
+  // or
+  //    10 20 20
+bool includes(const double a1[], int n1, const double a2[], int n2)
+{
+    if (n2 &lt;= 0)
+        return true;
+    if (n1 &lt; n2)
+        return false;
+
+      // If we get here, a1 and a2 are nonempty
+    if (a1[0] == a2[0])
+        return includes(a1+1, n1-1, a2+1, n2-1);  // rest of a1, rest of a2
+    else
+        return includes(a1+1, n1-1, a2, n2);  // rest of a1, all of a2
+}
+</pre>
+<h4><a id="P3"></a>Problem 3:</h4>
+<pre>
+bool pathExists(string maze[], int nRows, int nCols, int sr, int sc, int er, int ec)
+{
+    if (sr == er  &amp;&amp;  sc == ec)
+        return true;
+
+    maze[sr][sc] = '@';  // anything non-'.' will do
+
+    if (maze[sr-1][sc] == '.'  &amp;&amp;  pathExists(maze, nRows, nCols, sr-1, sc, er, ec))
+        return true;
+    if (maze[sr][sc-1] == '.'  &amp;&amp;  pathExists(maze, nRows, nCols, sr, sc-1, er, ec))
+        return true;
+    if (maze[sr+1][sc] == '.'  &amp;&amp;  pathExists(maze, nRows, nCols, sr+1, sc, er, ec))
+        return true;
+    if (maze[sr][sc+1] == '.'  &amp;&amp;  pathExists(maze, nRows, nCols, sr, sc+1, er, ec))
+        return true;
+
+    return false;
+}
+</pre>
+<p>
+or
+</p>
+<pre>
+bool pathExists(string maze[], int nRows, int nCols, int sr, int sc, int er, int ec)
+{
+    if (maze[sr][sc] != '.')
+        return false;
+
+    if (sr == er  &amp;&amp;  sc == ec)
+        return true;
+
+    maze[sr][sc] = '@';  // anything non-'.' will do
+
+    if (pathExists(maze, nRows, nCols, sr-1, sc, er, ec))
+        return true;
+    if (pathExists(maze, nRows, nCols, sr, sc-1, er, ec))
+        return true;
+    if (pathExists(maze, nRows, nCols, sr+1, sc, er, ec))
+        return true;
+    if (pathExists(maze, nRows, nCols, sr, sc+1, er, ec))
+        return true;
+
+    return false;
+}
+</pre>
+<h4><a id="P4"></a>Problem 4:</h4>
+<pre>
+  // Return the number of ways that all n2 elements of a2 appear
+  // in the n1 element array a1 in the same order (though not
+  // necessarily consecutively).  The empty sequence appears in a
+  // sequence of length n1 in 1 way, even if n1 is 0.
+  // For example, if a1 is the 7 element array
+  //    10 50 40 20 50 40 30
+  // then for this value of a2     the function must return
+  //    10 20 40                        1
+  //    10 40 30                        2
+  //    20 10 40                        0
+  //    50 40 30                        3
+int countIncludes(const double a1[], int n1, const double a2[], int n2)
+{
+    if (n2 &lt;= 0)
+        return 1;
+    if (n1 &lt; n2)
+        return 0;
+
+      // If we get here, a1 and a2 are nonempty
+    int t = countIncludes(a1+1, n1-1, a2, n2);  // rest of a1, all of a2
+    if (a1[0] == a2[0])
+        t += countIncludes(a1+1, n1-1, a2+1, n2-1);  // rest of a1, rest of a2
+    return t;
+}
+
+  // Exchange two doubles
+void exchange(double&amp; x, double&amp; y)
+{
+    double t = x;
+    x = y;
+    y = t;
+}
+
+  // Rearrange the elements of the array so that all the elements
+  // whose value is > divider come before all the other elements,
+  // and all the elements whose value is &lt; divider come after all
+  // the other elements.  Upon return, firstNotGreater is set to the
+  // index of the first element in the rearranged array that is
+  // &lt;= divider, or n if there is no such element, and firstLess is
+  // set to the index of the first element that is &lt; divider, or n
+  // if there is no such element.
+  // In other words, upon return from the function, the array is a
+  // permutation of its original value such that
+  //   * for 0 &lt;= i &lt; firstNotGreater, a[i] > divider
+  //   * for firstNotGreater &lt;= i &lt; firstLess, a[i] == divider
+  //   * for firstLess &lt;= i &lt; n, a[i] &lt; divider
+  // All the elements > divider end up in no particular order.
+  // All the elements &lt; divider end up in no particular order.
+void divide(double a[], int n, double divider,
+                                    int&amp; firstNotGreater, int&amp; firstLess)
+{
+    if (n &lt; 0)
+        n = 0;
+
+      // It will always be the case that just before evaluating the loop
+      // condition:
+      //  firstNotGreater &lt;= firstUnknown and firstUnknown &lt;= firstLess
+      //  Every element earlier than position firstNotGreater is > divider
+      //  Every element from position firstNotGreater to firstUnknown-1 is
+      //    == divider
+      //  Every element from firstUnknown to firstLess-1 is not known yet
+      //  Every element at position firstLess or later is &lt; divider
+
+    firstNotGreater = 0;
+    firstLess = n;
+    int firstUnknown = 0;
+    while (firstUnknown &lt; firstLess)
+    {
+        if (a[firstUnknown] &lt; divider)
+        {
+            firstLess--;
+            exchange(a[firstUnknown], a[firstLess]);
+        }
+        else
+        {
+            if (a[firstUnknown] > divider)
+            {
+                exchange(a[firstNotGreater], a[firstUnknown]);
+                firstNotGreater++;
+            }
+            firstUnknown++;
+        }
+    }
+}
+
+  // Rearrange the elements of the array so that
+  // a[0] >= a[1] >= a[2] >= ... >= a[n-2] >= a[n-1]
+  // If n &lt;= 1, do nothing.
+void order(double a[], int n)
+{
+    if (n &lt;= 1)
+        return;
+
+      // Divide using a[0] as the divider (any element would do).
+    int firstNotGreater;
+    int firstLess;
+    divide(a, n, a[0], firstNotGreater, firstLess);
+
+      // sort the elements > divider
+    order(a, firstNotGreater);
+
+      // sort the elements &lt; divider
+    order(a+firstLess, n-firstLess);
+}
+</pre>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>CS 32 Project 2 FAQ, Winter 2024</title>
+</head>
+<body>
+<div align="right">
+Winter 2024 CS 32
+</div>
+<h2>A convenient packaging of some Project 1 test cases</h2>
+<p>
+The Project 1 spec has a number of requirements that your submissiom must
+meet in order to not get a zero.  Many of them are expressed as "If we
+replace your <code>main.cpp</code> file with the following, ...".  One way
+you could check that you meet such requirements would be to make a lot of
+test <code>main.cpp</code> files and one by one, replace your
+<code>main.cpp</code> file with each and see if you pass each test.  Doing
+that on both your own machine and on the Linux server is a lot of file
+replacements.  Wouldn't it be great if there were a way to have one file with
+all those test cases, and you just tell the compiler which one to build? 
+Good news:  There is!  
+</p><p>
+If you replace your <code>main.cpp</code> file with <a href="main.cpp">this
+test main.cpp file</a>, you can build your program and it will run as before.
+But if you uncomment the commented out line near the top that #defines the
+symbol TESTNUM as 1, you can replace the 1 with an integer in the range 1 to
+20 to cause the compiler to select one of the 20 test cases contained in the
+file.  (If you replace the 1 with any other integer or leave the line
+commented out, the compiler will use the original code that plays the game.)
+</p><p>
+To test your code for the 20 cases in the file, just build your program 20
+times, replacing the value that TESTNUM is defined as each time, making sure
+that the tests that are required to build (numbered 1 to 15 in the file) do
+indeed build, that the tests that are required not to build (numbered 16 to
+20) do indeed not build, and that the two tests that when run must produce
+certain output (numbered 14 and 15) do indeed produce exactly that output. 
+You can also use an integer like 0 for TESTNUM to get the main routine that
+plays the game.  
+</p><p>
+When you prepare your zip file to turn in, it is acceptable for the file
+named <code>main.cpp</code> in your zip file to be this test
+<code>main.cpp</code> file; the line that #defines TESTNUM can be commented
+out or can be uncommented with TESTNUM defined as any integer.
+</p><p>
+When preparing to transfer your files to the Linux server to run under g32,
+here's a useful tip:  Comment out the line that #defines TESTNUM if you've 
+uncommented it.  Transfer your files to the Linux server.  If you build your
+program this way:
+</p>
+<pre>
+	g32 *.cpp -o toot
+</pre>
+<p>
+then you'll produce an executable file named <code>toot</code> that you
+can run to play the game.  But if you build it this way:
+</p>
+<pre>
+	g32 -DTESTNUM=7 *.cpp -o toot
+</pre>
+<p>
+then you'll build it with TESTNUM #defined as 7.  Notice that you do
+<em>not</em> have to make any change to the test <code>main.cpp</code> file;
+the compiler will build your program as if each .cpp file started with
+<code>#define TESTNUM 7</code>.  This way you can build your program 20 times
+for the 20 test cases in the file without editing the test
+<code>main.cpp</code> each time.
+</p>
+</body>
+</html>

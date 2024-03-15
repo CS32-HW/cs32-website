@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>Code for Insertion Sort</title>
+</head>
+<body>
+<h2>Code for Insertion Sort</h2>
+<p>
+Source:
+<a href="http://www.pearsonhighered.com/educator/academic/product/0,1144,0134463978,00.html"
+target="_blank">
+Data Abstraction and Problem Solving with C++: Walls and Mirrors, Seventh
+Edition</a>, by Frank M. Carrano and Timothy Henry, Addison Wesley, 2017.
+</p>
+<p>
+Here is a paraphrase of Carrano's code for insertion sort.  He expresses
+it as a template function, but for the homework, it should not be a template.
+</p>
+<pre>
+	template &lt;typename T>
+	void insertionSort(T theArray[], int n)
+	{
+	    for (int unsorted = 1; unsorted &lt; n; unsorted++)
+	    {
+	        T nextItem = theArray[unsorted];
+	        int loc = unsorted;
+	        while (loc > 0  &amp;&amp;  theArray[loc-1] > nextItem)
+		{
+		    theArray[loc] = theArray[loc-1];
+		    loc--;
+		}
+	        theArray[loc] = nextItem;
+	    }
+	}
+</pre>
+</body>
+</html>
